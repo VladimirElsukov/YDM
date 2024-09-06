@@ -1,0 +1,5 @@
+
+.env
+yandex_disk/migrations/
+*.sqlite3
+venv/
