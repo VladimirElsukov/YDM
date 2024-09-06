@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация о пользователе</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Подключите свой CSS файл -->
+</head>
+<body>
+    <div class="container">
+        <h1>Информация о пользователе</h1>
+        <p><strong>Имя:</strong> {{ user.name }}</p>
+        <p><strong>Электронная почта:</strong> {{ user.email }}</p>
+        <p><strong>Дата регистрации:</strong> {{ user.registration_date }}</p>
+        <a href="/disk_files.html">Перейти к файлам на диске</a>
+    </div>
+</body>
+</html>

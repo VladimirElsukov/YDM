@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Файлы на диске</title>
+    <link rel="stylesheet" href="styles.css"> <!-- Подключите свой CSS файл -->
+</head>
+<body>
+    <div class="container">
+        <h1>Файлы на диске</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Имя файла</th>
+                    <th>Размер</th>
+                    <th>Дата изменения</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file.name }}</td>
+                    <td>{{ file.size }} КБ</td>
+                    <td>{{ file.modified_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="/user_info.html">Вернуться к информации о пользователе</a>
+    </div>
+</body>
+</html>
