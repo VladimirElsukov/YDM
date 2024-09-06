@@ -26,6 +26,21 @@
                 </tr>
                 {% endfor %}
             </tbody>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file.name }}</td>
+                    <td>{{ file.size }} КБ</td>
+                    <td>{{ file.modified_date }}</td>
+                    <td>
+                        <form action="{% url 'download_file' file.path %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit">Скачать</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
         <a href="/user_info.html">Вернуться к информации о пользователе</a>
     </div>
