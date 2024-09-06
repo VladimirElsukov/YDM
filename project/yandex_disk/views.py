@@ -73,3 +73,18 @@ def download_file(request, file_path: str) -> JsonResponse:
             return JsonResponse({"download_link": download_link})
 
     return JsonResponse({"error": "Ошибка загрузки файла"}, status=400)
+
+
+def public_disk_files(request):
+    public_link = request.GET.get("public_key")
+    if public_link:
+        # Логика для работы с публичной ссылкой
+        headers = {"Authorization": f'OAuth {request.session.get("access_token")}'}
+        response = requests.get(
+            f"https://cloud-api.yandex.net/v1/disk/resources?public_key={public_link}",
+            headers=headers,
+        )
+        if response.status_code == 200:
+            files = response.json().get("_embedded", {}).get("items", [])
+            return render(request, "disk_files.html", {"files": files})
+    return render(request, "disk_files.html", {"files": []})
