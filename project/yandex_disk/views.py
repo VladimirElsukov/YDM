@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from typing import Any, Dict, List
-
+from .models import File
 
 CLIENT_ID = "f6352a33c61f4a9eab4f4049ca66d098"
 CLIENT_SECRET = "29248fb59bfd4256b6813b134db192e8"
@@ -47,20 +47,30 @@ def disk_files(request):
     if not access_token:
         return redirect("login")
 
-    # Проверка наличия файлов в сессии
-    if "files" in request.session:
-        files = request.session["files"]
-    else:
-        # Получаем файлы с Яндекс.Диска и кэшируем их в сессии
-        files = fetch_files_from_yandex_disk(access_token)
-        request.session["files"] = files
+    # Получаем файлы с Яндекс.Диска и кэшируем их в базе данных
+    files_data = fetch_files_from_yandex_disk(access_token)
+
+    # Обновляем базу данных
+    for file_data in files_data:
+        File.objects.update_or_create(
+            name=file_data["name"],
+            defaults={
+                "size": file_data.get("size", 0),
+                "modified_date": file_data.get("modified", None),
+                "path": file_data["path"],
+                "mime_type": file_data.get("mime_type", "unknown"),
+            },
+        )
+
+    # Получаем все файлы из базы данных
+    files = File.objects.all()
 
     # Получаем параметр фильтрации из запроса
     file_type = request.GET.get("file_type", "")
 
     # Фильтрация файлов по типу
     if file_type:
-        files = [file for file in files if file.get("mime_type") == file_type]
+        files = files.filter(mime_type=file_type)
 
     return render(request, "disk_files.html", {"files": files})
 
