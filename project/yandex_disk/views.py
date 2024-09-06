@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from typing import Any, Dict, List
 
+
 CLIENT_ID = "f6352a33c61f4a9eab4f4049ca66d098"
 CLIENT_SECRET = "29248fb59bfd4256b6813b134db192e8"
 REDIRECT_URI = "https://software-developers.ru"
@@ -43,18 +44,31 @@ def user_info(request):
 @api_view(["GET"])
 def disk_files(request):
     access_token = request.session.get("access_token")
-    if access_token:
-        headers = {"Authorization": f"OAuth {access_token}"}
+    if not access_token:
+        return redirect("login")
 
-        # Получение файлов
-        response = requests.get(
-            "https://cloud-api.yandex.net/v1/disk/resources", headers=headers
-        )
-        if response.status_code == 200:
-            files = response.json().get("_embedded", {}).get("items", [])
-            return render(request, "disk_files.html", {"files": files})
+    # Проверка наличия файлов в сессии
+    if "files" in request.session:
+        files = request.session["files"]
+    else:
+        # Получаем файлы с Яндекс.Диска и кэшируем их в сессии
+        files = fetch_files_from_yandex_disk(access_token)
+        request.session["files"] = files
 
-    return redirect("login")
+    # Получаем параметр фильтрации из запроса
+    file_type = request.GET.get("file_type", "")
+
+    # Фильтрация файлов по типу
+    if file_type:
+        files = [file for file in files if file.get("mime_type") == file_type]
+
+    return render(request, "disk_files.html", {"files": files})
+
+
+def clear_cache(request):
+    if "files" in request.session:
+        del request.session["files"]
+    return redirect("disk_files")
 
 
 @api_view(["POST"])
@@ -88,3 +102,45 @@ def public_disk_files(request):
             files = response.json().get("_embedded", {}).get("items", [])
             return render(request, "disk_files.html", {"files": files})
     return render(request, "disk_files.html", {"files": []})
+
+# Обработка скачивания нескольких файлов:
+@api_view(["POST"])
+def download_multiple_files(request) -> JsonResponse:
+    access_token = request.session.get("access_token")
+    if access_token:
+        files = request.POST.getlist("files")
+        download_links = []
+
+        headers = {"Authorization": f"OAuth {access_token}"}
+        for file_path in files:
+            download_url = f"https://cloud-api.yandex.net/v1/disk/resources/download?path={file_path}"
+            response = requests.get(download_url, headers=headers)
+            if response.status_code == 200:
+                download_link = response.json().get("href")
+                download_links.append(download_link)
+
+        return JsonResponse({"download_links": download_links})
+
+    return JsonResponse({"error": "Ошибка загрузки файлов"}, status=400)
+
+
+def fetch_files_from_yandex_disk(access_token: str) -> List[Dict[str, Any]]:
+    """
+    Запрашивает список файлов у API Яндекс.Диска.
+
+    Args:
+        access_token (str): Токен доступа для API.
+
+    Returns:
+        List[Dict[str, Any]]: Список файлов на Яндекс.Диске.
+    """
+    headers = {"Authorization": f"OAuth {access_token}"}
+    response = requests.get(
+        "https://cloud-api.yandex.net/v1/disk/resources", headers=headers
+    )
+
+    if response.status_code == 200:
+        return response.json().get("_embedded", {}).get("items", [])
+    else:
+        # Обработка ошибок, можно бросить исключение или вернуть пустой список
+        return []
