@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -12,7 +13,7 @@
         <p><strong>Имя:</strong> {{ user.name }}</p>
         <p><strong>Электронная почта:</strong> {{ user.email }}</p>
         <p><strong>Дата регистрации:</strong> {{ user.registration_date }}</p>
-        <a href="/disk_files.html">Перейти к файлам на диске</a>
+        <a href="{% url 'disk_files' %}">Перейти к файлам на диске</a>
     </div>
 </body>
 </html>

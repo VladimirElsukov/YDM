@@ -1,10 +1,12 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Файлы на диске</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Подключить свой CSS файл -->
+    <link rel="stylesheet" href="{% styles.css %}"> <!-- Подключить свой CSS файл -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('select-all').onclick = function() {
@@ -64,7 +66,7 @@
             <button type="submit">Скачать выбранные файлы</button>
         </form>
 
-        <a href="/user_info.html">Вернуться к информации о пользователе</a>
+        <a href="{% url 'user_info' %}">Вернуться к информации о пользователе</a>
     </div>
 </body>
 </html>

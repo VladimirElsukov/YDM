@@ -23,3 +23,7 @@ urlpatterns = [
     path("yandex_disk/", include("yandex_disk.urls")),
     path("", RedirectView.as_view(url="yandex_disk/login/", permanent=False)),
 ]
+
+
+
+
