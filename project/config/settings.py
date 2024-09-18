@@ -21,9 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Получаем настройки из .env
 SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = os.getenv("DEBUG") == "False"
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
-
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+# Безопасность
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+# SECURE_SSL_REDIRECT = True  # Если у вас установлен SSL
 
 # Application definition
 
